@@ -1,47 +1,148 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+	import { onMount } from 'svelte'
+	import Currency from './components/Currency.svelte'
+	import { countries } from './constants'
+
+	let currencyOptions: string[] = []
+	let fromCurrency = ''
+	let toCurrency = ''
+	let fromAmount = 1
+	let toAmount = 1
+	let exchangeRate = 1
+
+	const API_KEY = '3c1623ab6d621ddc0c91e7fd' // Не тырить
+
+	const fetchData = async () => {
+		try {
+			const response = await fetch(
+				`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/RUB`
+			)
+			const data = await response.json()
+
+			currencyOptions = Object.keys(data.conversion_rates)
+			fromCurrency = 'RUB'
+			toCurrency = currencyOptions[0]
+			exchangeRate = data.conversion_rates[toCurrency]
+		} catch (error) {
+			console.error(
+				`Attention!!!
+				Achtung!!!`,
+				error
+			)
+		}
+	}
+
+	const convertCurrency = async () => {
+		try {
+			const response = await fetch(
+				`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${fromCurrency}`
+			)
+			const data = await response.json()
+
+			exchangeRate = data.conversion_rates[toCurrency]
+			toAmount = fromAmount * exchangeRate
+		} catch (error) {
+			console.error('Ошибка!!!', error)
+		}
+	}
+
+	function handleFromCurrencyChange(event) {
+		fromCurrency = event.target.value
+		convertCurrency()
+	}
+
+	function handleToCurrencyChange(event) {
+		toCurrency = event.target.value
+		convertCurrency()
+	}
+
+	function handleFromAmountChange(event) {
+		fromAmount = parseFloat(event.target.value)
+		toAmount = fromAmount * exchangeRate
+	}
+
+	function handleToAmountChange(event) {
+		toAmount = parseFloat(event.target.value)
+		fromAmount = toAmount / exchangeRate
+	}
+
+	$: convertedAmount = toAmount.toFixed(2)
+
+	let fromCurrencyName: string
+	let toCurrencyName: string
+
+	$: fromCurrencyName = countries[fromCurrency]
+		? countries[fromCurrency].currencyName
+		: fromCurrency
+	$: toCurrencyName = countries[toCurrency]
+		? countries[toCurrency].currencyName
+		: toCurrency
+
+	onMount(fetchData)
 </script>
 
-<main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
+<main
+	class="flex flex-col justify-center items-center px-8 py-28 lg:p-28 tracking-wide"
+>
+	<h1
+		class="px-4 py-2 text-center font-black text-2xl lg:text-6xl text-neutral-100 border-2 border-[#08A652] rounded-full"
+	>
+		AR23 | Конвертер валют
+	</h1>
 
-  <div class="card">
-    <Counter />
-  </div>
+	<section class="mt-16">
+		<div>
+			<Currency
+				amount={fromAmount}
+				onChangeAmount={handleFromAmountChange}
+				selectedCurrency={fromCurrency}
+				onChangeCurrency={handleFromCurrencyChange}
+				currOptions={currencyOptions}
+			/>
+		</div>
+		<div class="mt-8">
+			<Currency
+				amount={convertedAmount}
+				onChangeAmount={handleToAmountChange}
+				selectedCurrency={toCurrency}
+				onChangeCurrency={handleToCurrencyChange}
+				currOptions={currencyOptions}
+			/>
+		</div>
+	</section>
 
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+	<div class="mt-8 lg:mt-16 text-2xl lg:text-4xl text-neutral-100">
+		<span class="one lg:mr-3 relative">1</span>
+		<span class="font-bold text-[#21BA72]">{fromCurrencyName}</span>
+		к
+		<span class="font-bold text-[#42E3B4]">{toCurrencyName}</span>
+		= {#if exchangeRate < 0.1}
+			<span class="font-bold text-[#FF0066]">{exchangeRate}</span>
+		{:else if exchangeRate < 1}
+			<span class="font-bold text-[#FF8000]">{exchangeRate}</span>
+		{:else if exchangeRate < 25}
+			<span class="font-bold text-[#A0E720]">{exchangeRate}</span>
+		{:else if exchangeRate < 100}
+			<span class="font-bold text-[#42E3B4]">{exchangeRate}</span>
+		{:else if exchangeRate > 100}
+			<span class="font-bold text-[#FAED00]">{exchangeRate}</span>
+		{:else}
+			<span class="font-bold text-[#08A652]">{exchangeRate}</span>
+		{/if}
+	</div>
 </main>
 
-<style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
-  }
+<style lang="css">
+	@media (min-width: 1024px) {
+		.one::before {
+			content: '';
+			position: absolute;
+			top: 0.04em;
+			left: -0.33em;
+			width: 1.25em;
+			height: 1.25em;
+			border: 2px solid #08a652;
+			border-radius: 100%;
+		}
+	}
 </style>
