@@ -26,7 +26,9 @@
 	>
 		{#each currOptions as option}
 			<option value={option}
-				>{countries[option] ? countries[option].currencyName : option}</option
+				>{option} - {countries[option]
+					? countries[option].currencyName
+					: option}</option
 			>
 		{/each}
 	</select>

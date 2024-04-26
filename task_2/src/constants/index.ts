@@ -586,7 +586,7 @@ export const countries: Record<string, Currency> = {
 		countryName: `Uganda`
 	},
 	USD: {
-		currencyName: `Американский доллар`,
+		currencyName: `Доллар США`,
 		countryName: `United States`
 	},
 	UYU: {
