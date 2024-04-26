@@ -82,7 +82,7 @@
 </script>
 
 <main
-	class="flex flex-col justify-center items-center px-8 py-28 lg:p-28 tracking-wide"
+	class="flex flex-col justify-center items-center px-4 py-8 lg:p-28 tracking-wide"
 >
 	<h1
 		class="px-4 py-2 text-center font-black text-2xl lg:text-6xl text-neutral-100 border-2 border-[#08A652] rounded-full"
@@ -111,23 +111,21 @@
 		</div>
 	</section>
 
-	<div class="mt-8 lg:mt-16 text-2xl lg:text-4xl text-neutral-100">
+	<div
+		class="mt-8 lg:mt-16 text-2xl lg:text-4xl text-neutral-100 text-center leading-relaxed"
+	>
 		<span class="one lg:mr-3 relative">1</span>
 		<span class="font-bold text-[#21BA72]">{fromCurrencyName}</span>
 		к
 		<span class="font-bold text-[#42E3B4]">{toCurrencyName}</span>
-		= {#if exchangeRate < 0.1}
+		= {#if exchangeRate < 1}
 			<span class="font-bold text-[#FF0066]">{exchangeRate}</span>
-		{:else if exchangeRate < 1}
+		{:else if exchangeRate < 50}
 			<span class="font-bold text-[#FF8000]">{exchangeRate}</span>
-		{:else if exchangeRate < 25}
-			<span class="font-bold text-[#A0E720]">{exchangeRate}</span>
 		{:else if exchangeRate < 100}
-			<span class="font-bold text-[#42E3B4]">{exchangeRate}</span>
+			<span class="font-bold text-[#08A652]">{exchangeRate}</span>
 		{:else if exchangeRate > 100}
 			<span class="font-bold text-[#FAED00]">{exchangeRate}</span>
-		{:else}
-			<span class="font-bold text-[#08A652]">{exchangeRate}</span>
 		{/if}
 	</div>
 </main>
